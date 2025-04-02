@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.util.StringUtils;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import com.example.vue_study_be.entity.BoardEntity;
 import com.example.vue_study_be.entity.BoardRepository;
 import com.example.vue_study_be.model.Header;
 import com.example.vue_study_be.model.Pagination;
+import com.example.vue_study_be.model.SearchDto;
 import com.example.vue_study_be.web.dtos.BoardDto;
 
 import lombok.RequiredArgsConstructor;
@@ -28,10 +30,23 @@ public class BoardService {
     /**
      * 게시글 목록 가져오기
      */
-    public Header<List<BoardDto>> getBoardList(Pageable pageable) {
+    public Header<List<BoardDto>> getBoardList(Pageable pageable, SearchDto searchDto) {
         List<BoardDto> dtos = new ArrayList<>();
-    
+        
         Page<BoardEntity> boardEntities = boardRepository.findAllByOrderByIdxDesc(pageable);
+        if("author".equals(searchDto.getSk())) {    //  되면 안되는데 되버리는 현상이?  - vue.js에서 param 가져오는 데이터를 model/dto.java 생성 후 테스트하는데 검색이 되버림
+            if(StringUtils.hasLength(searchDto.getSv())) {
+                boardEntities = boardRepository.findByAuthorOrderByIdxDesc(pageable, searchDto.getSv());
+            }
+        } else if ("title".equals(searchDto.getSk())) {
+            if(StringUtils.hasLength(searchDto.getSv())) {
+                boardEntities = boardRepository.findByTitleOrderByIdxDesc(pageable, searchDto.getSv());
+            }
+        } else if ("contents".equals(searchDto.getSk())) {
+            if(StringUtils.hasLength(searchDto.getSv())) {
+                boardEntities = boardRepository.findByContentsContainingOrderByIdxDesc(pageable, searchDto.getSv());
+            }
+        } 
         for (BoardEntity entity : boardEntities) {
             BoardDto dto = BoardDto.builder()
                     .idx(entity.getIdx())

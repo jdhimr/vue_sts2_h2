@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.vue_study_be.entity.BoardEntity;
 import com.example.vue_study_be.model.Header;
+import com.example.vue_study_be.model.SearchDto;
 import com.example.vue_study_be.services.BoardService;
 import com.example.vue_study_be.web.dtos.BoardDto;
 
@@ -30,9 +31,11 @@ public class BoardController {
 
     @GetMapping("/board/list")
     public Header<List<BoardDto>> boardList(
-            @PageableDefault(sort = {"idx"}) Pageable pageable
+            @PageableDefault(sort = {"idx"}) Pageable pageable,
+            SearchDto searchDto
     ) {
-        return boardService.getBoardList(pageable);
+        System.out.println("\nn searchDto!! 뷰에서 받았다\n\n"+searchDto);
+        return boardService.getBoardList(pageable, searchDto);
     }
 
     @GetMapping("/board/{id}")
